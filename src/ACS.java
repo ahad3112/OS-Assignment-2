@@ -38,6 +38,34 @@ public class ACS {
         return p.priority - (time - p.tier2Entry) / agingInterval;
     }
 
+    String list1() {
+        if (tier1.isEmpty()) {
+            return "Empty";
+        }
+        String s = "";
+        for (Process p : tier1) {
+            s += p.name + "(rem " + p.remaining + ", pri " + p.priority + ") ";
+        }
+        return s;
+    }
+
+    String list2() {
+        if (tier2.isEmpty()) {
+            return "Empty";
+        }
+        String s = "";
+        for (Process p : tier2) {
+            s += p.name + "(rem " + p.remaining + ", pri " + effective(p) + ") ";
+        }
+        return s;
+    }
+
+    void printState() {
+        System.out.println("Time " + time);
+        System.out.println("  Tier 1: " + list1());
+        System.out.println("  Tier 2: " + list2());
+    }
+
     Process pickFromTier2() {
         Process best = tier2.get(0);
         for (Process p : tier2) {
@@ -46,7 +74,6 @@ public class ACS {
             }
         }
         tier2.remove(best);
-        System.out.println(best.name + " effective priority " + effective(best));
         return best;
     }
 
@@ -86,12 +113,12 @@ public class ACS {
                 } else {
                     p.tier2Entry = time;
                     tier2.add(p);
-                    System.out.println(p.name + " demoted to Tier 2 at " + time);
                 }
 
                 addArrivals();
 
-                System.out.println(p.name + " ran until " + time + " remaining " + p.remaining);
+                System.out.println(p.name + " ran until " + time);
+                printState();
             } else if (!tier2.isEmpty()) {
                 Process p = pickFromTier2();
 
@@ -105,7 +132,8 @@ public class ACS {
                 p.remaining = 0;
                 p.finish = time;
 
-                System.out.println(p.name + " ran until " + time + " remaining " + p.remaining);
+                System.out.println(p.name + " ran until " + time);
+                printState();
             } else {
                 int next = nextArrival();
                 if (next == -1) {
